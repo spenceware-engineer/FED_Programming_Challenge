@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>THIS ONE</title>
+  <style>
+    /*
+      possible color choices:
+      #22162B (dark purple)
+      #451F55 (russian violet)
+      #D7CDCC (timberwolf)
+      #928677 (battleship gray)
+      #EF2D56 (active heart)
+      #F57A95 (inactive heart)
+      #A2D729 (bright green)
+      #759B1C (dark green)
+      #BDD27B (light green)
+      #731DD8 (bright purple)
+    */
+    html,
+    body {
+      max-width: 100vw;
+      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #D7CDCC;
+    }
+
+    #root {
+      background-color: #D7CDCC;
+      height: 100vh;
+      width: 100%;
+    }
+
+    .plist {
+      display: grid;
+      grid-gap: 10px;
+    }
+
+    .plist__product {
+      background-color: #22162B;
+      border-radius: 20px;
+      padding: 15px;
+      display: grid;
+      grid-gap: 10px;
+      grid-template-areas:
+        "display price"
+        "cat cat";
+    }
+
+    .product__display {
+      grid-area: display;
+      display: grid;
+      grid-template-areas: "heading" "cat";
+    }
+
+    .product_heading {
+      grid-area: heading;
+      grid-template-areas: "favorite name";
+    }
+
+    .product__favorite {
+      height: 32px;
+      width: 32px;
+      grid-area: favorite;
+    }
+
+    .product__name {
+      color: #D7CDCC;
+      display: inline-block;
+      grid-area: name;
+    }
+
+    .product__cat-list {
+      grid-area: cat;
+    }
+
+    .cat__container {
+      background-color: #731DD8;
+      padding: 5px 10px;
+      border-radius: 999px;
+      grid-area: cat;
+      display: inline-block;
+      margin-right: 10px;
+    }
+
+    .cat__name {
+      padding: 0;
+      margin: 0;
+      display: inline-block;
+    }
+
+    .product__price {
+      grid-area: price;
+      display: inline-block;
+    }
+
+    .price__old {
+      color: #928677;
+      text-decoration: line-through;
+      display: inline-block;
+    }
+
+    .price__new {
+      color: #A2D729;
+      display: inline-block;
+      margin: 0;
+      padding: 0 5px;
+    }
+
+    .price__discount {
+      color: #759B1C;
+      margin: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script>
+    const ROOT_EL = document.getElementById('root')
+
+    const productListing = (product) => {
+      const productContainer = document.createElement('div')
+      productContainer.setAttribute('class', 'plist__product')
+
+      const headingContainer = document.createElement('div')
+      headingContainer.setAttribute('class', 'product__heading')
+
+      const inactiveHeart = document.createElement('img')
+      inactiveHeart.setAttribute('class', 'product__favorite')
+      inactiveHeart.setAttribute('alt', 'Not yet favorited')
+      inactiveHeart.setAttribute('src', './assets/product__favorited--false.svg')
+      headingContainer.appendChild(inactiveHeart)
+
+      const productName = document.createElement('h2')
+      productName.innerHTML = product.product
+      productName.setAttribute('class', 'product__name')
+      headingContainer.appendChild(productName)
+
+      const productCatList = document.createElement('div')
+      productCatList.setAttribute('class', 'product__cat-list')
+
+      product.cat.forEach(cat => {
+        const productCat = document.createElement('div')
+        productCat.setAttribute('class', 'cat__container')
+
+        const productCatName = document.createElement('p')
+        productCatName.setAttribute('class', 'cat__name')
+        productCatName.innerHTML = cat
+
+        productCat.appendChild(productCatName)
+        productCatList.appendChild(productCat)
+      })
+
+      const productPrice = document.createElement('div')
+      productPrice.setAttribute('class', 'product__price')
+
+      const oldPrice = document.createElement('p')
+      oldPrice.setAttribute('class', 'price__old')
+      oldPrice.innerHTML = `$${product.price.toFixed(2)}`
+      productPrice.appendChild(oldPrice)
+
+      const newPrice = document.createElement('p')
+      newPrice.setAttribute('class', 'price__new')
+      newPrice.innerHTML = `$${product.sale.toFixed(2)}`
+      productPrice.appendChild(newPrice)
+
+      productContainer.appendChild(headingContainer)
+      productContainer.appendChild(productCatList)
+      productContainer.appendChild(productPrice)
+
+      return productContainer
+    }
+
+    fetch('https://raw.githubusercontent.com/neodigm/FED_Programming_Challenge/refs/heads/gh-pages/products.json')
+      .then(res => (
+        res.json()
+      ))
+      .then(res => (
+        res.map((prod) => {
+          return ({
+            ...prod,
+            cat: prod.cat.split(', '),
+            fav: false,
+            id: [ ...prod.cat.split(', '), prod.product ].join('-').split(' ').join(''),
+            price: Number(prod.price),
+            sale: Number(prod.sale),
+          })
+        })
+      ))
+      .then(res => {
+        console.log(res)
+        res.forEach(prod => ROOT_EL.appendChild(productListing(prod)))
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+  </script>
+</body>
+
+</html>
