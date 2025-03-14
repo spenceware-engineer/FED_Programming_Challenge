@@ -148,6 +148,34 @@
     // get the root element (the product list container) to be able to add content to page
     const ROOT_EL = document.getElementById('plist')
 
+    // Create JSON-LD string for product
+    const generateJSONLD = (product) => {
+      return `{
+        "@context": "https://schema.org/",
+        "@type": "Product",
+        "name": ${product.product},
+        "offers": {
+          "@type": "Offer",
+          "price": ${product.sale},
+          "priceCurrency": "USD",
+          "priceSpecification": {
+            "@type": "UnitPriceSpecification",
+            "priceType": "https://schema.org/StrikethroughPrice",
+            "price": ${product.price},
+            "priceCurrency": "USD"
+          }
+        }
+      }`
+    }
+
+    // Add JSON-LD to head
+    const addJSONLD = (content) => {
+      const script = document.createElement('script')
+      script.setAttribute('type', 'application/ld+json')
+      script.textContent = content
+      document.head.appendChild(script)
+    }
+
     // create product listing
     const productListing = (product) => {
       // create product container and set class for styling
@@ -254,27 +282,6 @@
 
       // Return the product listing DOM element
       return productContainer
-
-      /* Element Returned:
-        <div class="plist__product">
-          <div class="product__heading">
-            <img src="./assets/product__favorited--false.svg" alt="Not yet favorited" class="product__favorite" />
-            <h2 class="product__name">Product Name</h2>
-          </div>
-          <div class="product__cat-list">
-            <div class="cat__container">
-              <p class="cat__name">Category 1</p>
-            </div>
-            <div class="cat__container">
-              <p class="cat__name">Category 2</p>
-            </div>
-          </div>
-          <div class="product__price">
-            <p class="price__old">$1.00</p>
-            <p class="price__new">$0.60</p>
-          </div>
-        </div>
-      */
     }
 
     fetch('https://raw.githubusercontent.com/neodigm/FED_Programming_Challenge/refs/heads/gh-pages/products.json')
@@ -295,7 +302,9 @@
         })
       ))
       .then(res => {
-        console.log(res)
+        let jsonld = ''
+        res.forEach(prod => jsonld += generateJSONLD(prod))
+        addJSONLD(jsonld)
         res.forEach(prod => ROOT_EL.appendChild(productListing(prod)))
       })
       .catch((err) => {
