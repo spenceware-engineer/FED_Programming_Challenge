@@ -178,12 +178,19 @@
       // Product Name
       const productName = document.createElement('h2')
       productName.innerHTML = product.product
+      productName.setAttribute('aria-described-by', `${product.id}-price`)
       productNameWithPrice.appendChild(productName)
       productHeading.appendChild(productNameWithPrice)
 
       // Create Price container
       const productPrice = document.createElement('div')
       productPrice.setAttribute('class', 'product__price--hidden')
+      productPrice.setAttribute('id', `${product.id}-price`)
+      productPrice.setAttribute(
+        'aria-label',
+        `Regular price $${product.price} on sale for $${product.sale}`
+      )
+      productPrice.setAttribute('role', 'tooltip')
 
       // Display the regular price (gray with a strike through)
       const oldPrice = document.createElement('p')
