@@ -18,9 +18,9 @@
   <style>
     html,
     body {
+      margin: 0;
       max-width: 100vw;
       overflow-x: hidden;
-      margin: 0;
       padding: 0;
     }
 
@@ -31,10 +31,10 @@
 
     #plist {
       background-color: #D7CDCC;
-      width: 100%;
-      padding: 10px;
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(min(20rem, 100%), 1fr));
+      padding: 10px;
+      width: 100%;
     }
 
     .plist__product {
@@ -48,16 +48,16 @@
 
     .product__favorite {
       height: 52px;
-      width: 52px;
       padding: 10px 10px 10px 0px;
       vertical-align: middle;
+      width: 52px;
     }
 
     .product__favorite--hover {
       height: 52px;
-      width: 52px;
       padding: 8px 8px 8px 0px;
       vertical-align: middle;
+      width: 52px;
     }
 
     .product__name {
@@ -79,65 +79,54 @@
 
     .cat__container {
       background-color: #731DD8;
-      color: #D7CDCC;
-      padding: 5px 10px;
       border-radius: 999px;
+      color: #D7CDCC;
       display: inline-block;
       margin: 0px 10px 10px 0px;
+      padding: 5px 10px;
     }
 
     .cat__name {
-      padding: 0;
-      margin: 0;
       display: inline-block;
+      margin: 0;
+      padding: 0;
     }
 
     .product__price--hidden {
-      visibility: hidden;
-      width: 120px;
-      background-color: #555;
-      color: #fff;
-      text-align: center;
-      border-radius: 6px;
-      padding: 5px 0;
-      position: absolute;
-      z-index: 1;
-      bottom: 125%;
-      left: 50%;
-      margin-left: -60px;
       opacity: 0;
+      visibility: hidden;
     }
 
     .product__price--visible {
-      visibility: visible;
-      width: 120px;
       background-color: #555;
-      color: #fff;
-      text-align: center;
       border-radius: 6px;
-      padding: 5px 0;
-      position: absolute;
-      z-index: 1;
-      top: 75%;
+      color: #fff;
       left: 50%;
       margin-left: -60px;
       opacity: 1;
+      padding: 5px 0;
+      position: absolute;
+      text-align: center;
+      top: 75%;
+      visibility: visible;
+      width: 120px;
+      z-index: 1;
     }
 
     .price__old {
       color: #928677;
-      text-decoration: line-through;
       display: inline-block;
       font-weight: lighter;
+      text-decoration: line-through;
     }
 
     .price__new {
       color: #A2D729;
       display: inline-block;
+      font-size: 1.25em;
       font-weight: bold;
       margin: 0;
       padding: 0 5px;
-      font-size: 1.25em;
     }
   </style>
 </head>
@@ -228,13 +217,16 @@
       newPrice.innerHTML = `$${product.sale.toFixed(2)}`
       productPrice.appendChild(newPrice)
 
+      // Add price tooltip to the product name and price container
       productNameWithPrice.appendChild(productPrice)
 
+      // Show tooltip displaying price when hovering over the product name
       productNameWithPrice.addEventListener('mouseenter', function (e) {
         productName.setAttribute('class', 'product__name--hover')
         productPrice.setAttribute('class', 'product__price--visible')
       })
 
+      // Hide tooltip when no longer hovering over product name
       productNameWithPrice.addEventListener('mouseleave', function (e) {
         productName.setAttribute('class', 'product__name')
         productPrice.setAttribute('class', 'product__price--hidden')
@@ -242,7 +234,6 @@
 
       // Container for the categories to be displayed
       const productCatList = document.createElement('div')
-      productCatList.setAttribute('class', 'product__cat-list')
 
       // Add a category tag to the category display for each category
       product.cat.forEach(cat => {
@@ -264,16 +255,18 @@
       // Put all the parts of the product listing together
       productContainer.appendChild(productHeading)
       productContainer.appendChild(productCatList)
-      /* productContainer.appendChild(productPrice) */
 
+      // Indicate hover by increasing like icon size when hovering over product
       productContainer.addEventListener('mouseenter', function (e) {
         favIcon.setAttribute('class', 'product__favorite--hover')
       })
 
+      // Return icon to regular size when not hovering over product
       productContainer.addEventListener('mouseleave', function (e) {
         favIcon.setAttribute('class', 'product__favorite')
       })
 
+      // Add product to favorites when clicked, and remove product from favorites if clicked again
       productContainer.addEventListener('click', function (e) {
         localStorage.setItem(product.id, localStorage.getItem(product.id) === 'true' ? 'false' : 'true')
         favorited = localStorage.getItem(product.id) === 'true' ? true : false
@@ -285,11 +278,13 @@
       return productContainer
     }
 
+    // get list of products from provided JSON file
     fetch('https://raw.githubusercontent.com/neodigm/FED_Programming_Challenge/refs/heads/gh-pages/products.json')
       .then(res => (
         res.json()
       ))
       .then(res => (
+        // format data as needed for use in page
         res.map((prod) => {
           const id = [ ...prod.cat.split(', '), prod.product ].join('-').split(' ').join('')
           return ({
@@ -303,9 +298,12 @@
         })
       ))
       .then(res => {
+        // create and add JSON LD to page
         let jsonld = ''
         res.forEach(prod => jsonld += generateJSONLD(prod))
         addJSONLD(jsonld)
+
+        // create and display site content
         res.forEach(prod => ROOT_EL.appendChild(productListing(prod)))
       })
       .catch((err) => {
