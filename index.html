@@ -34,9 +34,8 @@
       font-family: Arial, Helvetica, sans-serif;
     }
 
-    #root {
+    #plist {
       background-color: #D7CDCC;
-      height: 100vh;
       width: 100%;
       padding: 10px;
     }
@@ -44,45 +43,41 @@
     .plist__product {
       background-color: #22162B;
       border-radius: 20px;
-      display: grid;
-      grid-gap: 10px;
-      grid-template: "heading price" auto "cat cat" auto / 2fr 1fr;
+      display: inline-block;
       margin: 10px;
+      min-width: 15%;
       padding: 15px;
-    }
-
-    .product__heading {
-      grid-area: heading;
-      grid-template: "favorite name" auto / 1fr 3fr;
     }
 
     .product__favorite {
       height: 52px;
       width: 52px;
-      padding: 10px;
-      grid-area: favorite;
+      padding: 10px 10px 10px 0px;
       vertical-align: middle;
     }
 
     .product__favorite--hover {
-      height: 36px;
-      width: 36px;
-      margin: 8px;
-      grid-area: favorite;
+      height: 52px;
+      width: 52px;
+      padding: 8px 8px 8px 0px;
       vertical-align: middle;
     }
 
     .product__name {
       color: #D7CDCC;
       display: inline-block;
-      grid-area: name;
-      margin: 0 auto;
+      margin-right: 10px;
       position: relative;
       vertical-align: middle;
     }
 
-    .product__cat-list {
-      grid-area: cat;
+    .product__name--hover {
+      color: #D7CDCC;
+      display: inline-block;
+      margin-right: 10px;
+      position: relative;
+      vertical-align: middle;
+      text-decoration: underline;
     }
 
     .cat__container {
@@ -92,7 +87,7 @@
       border-radius: 999px;
       grid-area: cat;
       display: inline-block;
-      margin-right: 10px;
+      margin: 0px 10px 10px 0px;
     }
 
     .cat__name {
@@ -101,9 +96,36 @@
       display: inline-block;
     }
 
-    .product__price {
-      grid-area: price;
-      display: inline-block;
+    .product__price--hidden {
+      visibility: hidden;
+      width: 120px;
+      background-color: #555;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px 0;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -60px;
+      opacity: 0;
+    }
+
+    .product__price--visible {
+      visibility: visible;
+      width: 120px;
+      background-color: #555;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px 0;
+      position: absolute;
+      z-index: 1;
+      top: 75%;
+      left: 50%;
+      margin-left: -60px;
+      opacity: 1;
     }
 
     .price__old {
@@ -125,11 +147,11 @@
 </head>
 
 <body>
-  <!-- div#root as home of page -->
-  <div id="root"></div>
+  <!-- div#plist as the root element and product list container -->
+  <div id="plist"></div>
   <script>
-    // get the root element to house the rest of the elements to be added to page
-    const ROOT_EL = document.getElementById('root')
+    // get the root element (the product list container) to be able to add content to page
+    const ROOT_EL = document.getElementById('plist')
 
     // create product listing
     const productListing = (product) => {
@@ -139,22 +161,53 @@
 
       // Container for the heart icon (favorite)
       const productHeading = document.createElement('div')
-      productHeading.setAttribute('class', 'product__heading')
 
       let favorited = localStorage.getItem(product.id) === 'true' ? true : false
 
-      // Initially load the inactive heart icon (not yet favorited)
+      // Load heart icon based on whether or not the item is favorited
       const favIcon = document.createElement('img')
       favIcon.setAttribute('class', 'product__favorite')
       favIcon.setAttribute('alt', favorited ? `${product.product} marked as favorite` : `${product.product} not favorited`)
       favIcon.setAttribute('src', `./assets/product__favorited--${favorited}.svg`)
       productHeading.appendChild(favIcon)
 
+      // Container for Product Name with Price display
+      const productNameWithPrice = document.createElement('div')
+      productNameWithPrice.setAttribute('class', 'product__name')
+
       // Product Name
       const productName = document.createElement('h2')
       productName.innerHTML = product.product
-      productName.setAttribute('class', 'product__name')
-      productHeading.appendChild(productName)
+      productNameWithPrice.appendChild(productName)
+      productHeading.appendChild(productNameWithPrice)
+
+      // Create Price container
+      const productPrice = document.createElement('div')
+      productPrice.setAttribute('class', 'product__price--hidden')
+
+      // Display the regular price (gray with a strike through)
+      const oldPrice = document.createElement('p')
+      oldPrice.setAttribute('class', 'price__old')
+      oldPrice.innerHTML = `$${product.price.toFixed(2)}`
+      productPrice.appendChild(oldPrice)
+
+      // Display the new price (green and bold)
+      const newPrice = document.createElement('p')
+      newPrice.setAttribute('class', 'price__new')
+      newPrice.innerHTML = `$${product.sale.toFixed(2)}`
+      productPrice.appendChild(newPrice)
+
+      productNameWithPrice.appendChild(productPrice)
+
+      productNameWithPrice.addEventListener('mouseenter', function (e) {
+        productName.setAttribute('class', 'product__name--hover')
+        productPrice.setAttribute('class', 'product__price--visible')
+      })
+
+      productNameWithPrice.addEventListener('mouseleave', function (e) {
+        productName.setAttribute('class', 'product__name')
+        productPrice.setAttribute('class', 'product__price--hidden')
+      })
 
       // Container for the categories to be displayed
       const productCatList = document.createElement('div')
@@ -177,26 +230,10 @@
         productCatList.appendChild(productCat)
       })
 
-      // Create Price container
-      const productPrice = document.createElement('div')
-      productPrice.setAttribute('class', 'product__price')
-
-      // Display the regular price (gray with a strike through)
-      const oldPrice = document.createElement('p')
-      oldPrice.setAttribute('class', 'price__old')
-      oldPrice.innerHTML = `$${product.price.toFixed(2)}`
-      productPrice.appendChild(oldPrice)
-
-      // Display the new price (green and bold)
-      const newPrice = document.createElement('p')
-      newPrice.setAttribute('class', 'price__new')
-      newPrice.innerHTML = `$${product.sale.toFixed(2)}`
-      productPrice.appendChild(newPrice)
-
       // Put all the parts of the product listing together
       productContainer.appendChild(productHeading)
       productContainer.appendChild(productCatList)
-      productContainer.appendChild(productPrice)
+      /* productContainer.appendChild(productPrice) */
 
       productContainer.addEventListener('mouseenter', function (e) {
         favIcon.setAttribute('class', 'product__favorite--hover')
